@@ -1,3 +1,6 @@
+<img width="1871" height="906" alt="image" src="https://github.com/user-attachments/assets/d4393472-5ade-4ee3-b223-ae4f07347bd5" />
+
+
 # Projeto Integrador — GameHub
 
 ## 1. Visão geral do projeto
