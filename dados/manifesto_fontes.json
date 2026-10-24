@@ -1,0 +1,58 @@
+[
+  {
+    "arquivo": "homicidios_regioes.json",
+    "url": "https://www.ipea.gov.br/dados-api/series-values/40/2",
+    "acesso_data_local": "2026-10-24",
+    "fuso": "America/Sao_Paulo",
+    "bytes": 18954,
+    "sha256": "771ed34ad5734adef7c8467b74e0b914e472567a53b8bd02dd71c1d82d85779c"
+  },
+  {
+    "arquivo": "taxas_regioes.json",
+    "url": "https://www.ipea.gov.br/dados-api/series-values/52/2",
+    "acesso_data_local": "2026-10-24",
+    "fuso": "America/Sao_Paulo",
+    "bytes": 23413,
+    "sha256": "877e0d1430d69f9cc8b1bab2db0e559207438c5885a9769ac24c834911e78d01"
+  },
+  {
+    "arquivo": "homicidios_brasil.json",
+    "url": "https://www.ipea.gov.br/dados-api/series-values/40/1",
+    "acesso_data_local": "2026-10-24",
+    "fuso": "America/Sao_Paulo",
+    "bytes": 3921,
+    "sha256": "2ef208844853ecbf7fd1a179e17733166c7a9f07ab9f0b31cb29e25d2d6f3865"
+  },
+  {
+    "arquivo": "taxas_brasil.json",
+    "url": "https://www.ipea.gov.br/dados-api/series-values/52/1",
+    "acesso_data_local": "2026-10-24",
+    "fuso": "America/Sao_Paulo",
+    "bytes": 4812,
+    "sha256": "e33165b4c3a71f4f6cb6b1af151c38da72be2f3da18b05763b8acc98f103278c"
+  },
+  {
+    "arquivo": "regioes_referencia.geojson",
+    "url": "https://www.ipea.gov.br/dados-api/geo/regions",
+    "acesso_data_local": "2026-10-24",
+    "fuso": "America/Sao_Paulo",
+    "bytes": 205901,
+    "sha256": "fcd94828c82c97b8f36adbae6bc4bd91a919708f4443e6714b89746cbc279676"
+  },
+  {
+    "arquivo": "metadados_homicidios.json",
+    "url": "https://www.ipea.gov.br/cms/api/series/40",
+    "acesso_data_local": "2026-10-24",
+    "fuso": "America/Sao_Paulo",
+    "bytes": 829,
+    "sha256": "7051b7da949fce12ad6ed599fb12ee8235f5e81cceadebb4163442c95b0521de"
+  },
+  {
+    "arquivo": "metadados_taxas.json",
+    "url": "https://www.ipea.gov.br/cms/api/series/52",
+    "acesso_data_local": "2026-10-24",
+    "fuso": "America/Sao_Paulo",
+    "bytes": 837,
+    "sha256": "cd32bc84f5c476370d7c7e7b6014a935e9d0923ea2d8170642098dd97e069a00"
+  }
+]
