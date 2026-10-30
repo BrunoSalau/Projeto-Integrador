@@ -30,7 +30,7 @@ const estilos = StyleSheet.create({
     borderWidth: 1,
     borderColor: cores.borda,
   },
-  imagem: { width: "100%", height: 150 },
+  imagem: { width: "100%", height: 150, resizeMode: "cover"},
   corpo: { padding: espaco.m },
   linhaTopo: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
   categoria: { color: cores.destaque, fontSize: 12, fontWeight: "700", textTransform: "uppercase" },
