@@ -1,11 +1,21 @@
 import { URL_API } from "../config/api";
 
-export async function requisitar(caminho, opcoes) {
+let tokenAtual = null;
+
+export function definirToken(token) {
+  tokenAtual = token || null;
+}
+
+export async function requisitar(caminho, opcoes = {}) {
   let resposta;
   try {
     resposta = await fetch(`${URL_API}${caminho}`, {
-      headers: { "Content-Type": "application/json" },
       ...opcoes,
+      headers: {
+        "Content-Type": "application/json",
+        ...(tokenAtual ? { Authorization: `Bearer ${tokenAtual}` } : {}),
+        ...(opcoes.headers || {}),
+      },
     });
   } catch (erro) {
     throw new Error("Não foi possível conectar ao servidor. Verifique sua conexão.");
