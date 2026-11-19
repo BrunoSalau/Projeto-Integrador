@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import EstadoRequisicao from "../../componentes/EstadoRequisicao";
@@ -7,6 +8,8 @@ import { listarCategorias, criarCategoria, atualizarCategoria, removerCategoria 
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function CategoriasScreen({ navigation }) {
+  const usuario = useSelector((state) => state.app.usuario);
+  const ehAdmin = usuario?.role === "admin";
   const [nome, setNome] = useState("");
   const [editando, setEditando] = useState(null);
   const [mensagem, setMensagem] = useState("");
@@ -87,14 +90,14 @@ export default function CategoriasScreen({ navigation }) {
       style={estilos.container}
       data={categorias}
       keyExtractor={(item) => String(item.id)}
-      ListHeaderComponent={formulario}
+      ListHeaderComponent={ehAdmin ? formulario : null}
       numColumns={2}
       columnWrapperStyle={estilos.coluna}
       contentContainerStyle={estilos.lista}
       renderItem={({ item }) => {
         const quantidade = item.quantidadeJogos;
         return (
-          <TouchableOpacity style={estilos.card} activeOpacity={0.85} onPress={() => abrirCategoria(item.nome)} onLongPress={() => aoSelecionar(item)}>
+          <TouchableOpacity style={estilos.card} activeOpacity={0.85} onPress={() => abrirCategoria(item.nome)} onLongPress={ehAdmin ? () => aoSelecionar(item) : undefined}>
             <MaterialCommunityIcons name={item.icone} size={30} color={cores.textoSuave} />
             <Text style={estilos.nome}>{item.nome}</Text>
             <Text style={estilos.quantidade}>

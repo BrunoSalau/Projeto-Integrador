@@ -1,4 +1,5 @@
 const { criarRotasCrud } = require("../crud");
+const { somenteAdmin } = require("../autenticacao");
 
 const esquema = `
 CREATE TABLE IF NOT EXISTS categorias (
@@ -41,6 +42,7 @@ function criarRotas(banco) {
     selecao:
       "SELECT categorias.*, (SELECT COUNT(*) FROM jogos WHERE jogos.categoriaId = categorias.id) AS quantidadeJogos FROM categorias",
     validar,
+    protegerEscrita: somenteAdmin,
   });
 }
 
