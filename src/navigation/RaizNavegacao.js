@@ -9,15 +9,16 @@ const Stack = createNativeStackNavigator();
 
 export default function RaizNavegacao() {
   const modo = useSelector((state) => state.app.modo);
+  const usuario = useSelector((state) => state.app.usuario);
   const TelaPrincipal = modo === "apoio" ? AreaApoioStack : FachadaDrawer;
 
   return (
-    <Stack.Navigator
-      initialRouteName="Login"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Principal" component={TelaPrincipal} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {usuario ? (
+        <Stack.Screen name="Principal" component={TelaPrincipal} />
+      ) : (
+        <Stack.Screen name="Login" component={LoginScreen} />
+      )}
     </Stack.Navigator>
   );
 }
