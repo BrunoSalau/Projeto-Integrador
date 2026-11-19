@@ -1,24 +1,80 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { buscarJogoPorNome } from "../../servicos/jogosApi";
+import { criarAvaliacao, atualizarAvaliacao } from "../../servicos/avaliacoesApi";
 import { cores, espaco, raio } from "../../tema/tema";
 
-export default function NovaAvaliacaoScreen({ navigation }) {
-  function aoSalvar() {
-    Alert.alert("Avaliação", "O cadastro de avaliações será ligado à API nas próximas entregas.");
-    navigation.goBack();
+export default function NovaAvaliacaoScreen({ navigation, route }) {
+  const avaliacao = route.params?.avaliacao;
+  const [jogo, setJogo] = useState(avaliacao ? avaliacao.jogoNome : "");
+  const [autor, setAutor] = useState(avaliacao ? avaliacao.autor : "");
+  const [nota, setNota] = useState(avaliacao ? String(avaliacao.nota) : "");
+  const [comentario, setComentario] = useState(avaliacao ? avaliacao.comentario : "");
+  const [mensagem, setMensagem] = useState("");
+  const [salvando, setSalvando] = useState(false);
+
+  async function aoSalvar() {
+    const valorNota = Number(nota);
+    if (jogo.trim() === "" || autor.trim() === "") {
+      setMensagem("Informe o jogo e o seu nome.");
+      return;
+    }
+    if (nota.trim() === "" || !Number.isInteger(valorNota) || valorNota < 0 || valorNota > 10) {
+      setMensagem("A nota deve ser um número inteiro entre 0 e 10.");
+      return;
+    }
+
+    setSalvando(true);
+    try {
+      const encontrado = await buscarJogoPorNome(jogo.trim());
+      if (!encontrado) {
+        setMensagem("Jogo não encontrado. Digite o nome de um jogo do GameHub.");
+        return;
+      }
+      const dados = { jogoId: encontrado.id, autor, nota: valorNota, comentario };
+      if (avaliacao) {
+        await atualizarAvaliacao(avaliacao.id, dados);
+      } else {
+        await criarAvaliacao(dados);
+      }
+      navigation.goBack();
+    } catch (e) {
+      setMensagem(e.message);
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
     <ScrollView style={estilos.container} contentContainerStyle={estilos.conteudo} keyboardShouldPersistTaps="handled">
       <View style={estilos.campo}>
         <Text style={estilos.rotulo}>Jogo</Text>
-        <TextInput style={estilos.input} placeholder="Ex.: Nebula Rift" placeholderTextColor={cores.textoSuave} />
+        <TextInput
+          style={estilos.input}
+          value={jogo}
+          onChangeText={setJogo}
+          placeholder="Ex.: Nebula Rift"
+          placeholderTextColor={cores.textoSuave}
+        />
+      </View>
+
+      <View style={estilos.campo}>
+        <Text style={estilos.rotulo}>Seu nome</Text>
+        <TextInput
+          style={estilos.input}
+          value={autor}
+          onChangeText={setAutor}
+          placeholder="Ex.: Marina"
+          placeholderTextColor={cores.textoSuave}
+        />
       </View>
 
       <View style={estilos.campo}>
         <Text style={estilos.rotulo}>Nota (0 a 10)</Text>
         <TextInput
           style={estilos.input}
+          value={nota}
+          onChangeText={setNota}
           placeholder="Ex.: 9"
           placeholderTextColor={cores.textoSuave}
           keyboardType="numeric"
@@ -29,14 +85,18 @@ export default function NovaAvaliacaoScreen({ navigation }) {
         <Text style={estilos.rotulo}>Comentário</Text>
         <TextInput
           style={[estilos.input, estilos.inputGrande]}
+          value={comentario}
+          onChangeText={setComentario}
           placeholder="Conte o que achou"
           placeholderTextColor={cores.textoSuave}
           multiline
         />
       </View>
 
-      <TouchableOpacity style={estilos.botao} onPress={aoSalvar}>
-        <Text style={estilos.botaoTexto}>Salvar</Text>
+      {mensagem !== "" && <Text style={estilos.mensagem}>{mensagem}</Text>}
+
+      <TouchableOpacity style={estilos.botao} onPress={aoSalvar} disabled={salvando}>
+        <Text style={estilos.botaoTexto}>{avaliacao ? "Salvar alterações" : "Salvar"}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -58,6 +118,7 @@ const estilos = StyleSheet.create({
     borderColor: cores.borda,
   },
   inputGrande: { height: 110, textAlignVertical: "top" },
+  mensagem: { color: cores.aviso, marginBottom: 12, fontSize: 13 },
   botao: { backgroundColor: cores.primaria, borderRadius: raio.m, paddingVertical: 15, alignItems: "center", marginTop: 8 },
   botaoTexto: { color: "#fff", fontSize: 15, fontWeight: "bold" },
 });

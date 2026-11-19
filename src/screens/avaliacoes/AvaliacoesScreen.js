@@ -1,29 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
-import { avaliacoes, buscarJogo } from "../../dados/mockData";
+import EstadoRequisicao from "../../componentes/EstadoRequisicao";
+import useCarregar from "../../servicos/useCarregar";
+import { listarAvaliacoes, removerAvaliacao } from "../../servicos/avaliacoesApi";
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function AvaliacoesScreen({ navigation }) {
+  const [selecionada, setSelecionada] = useState(null);
+  const [mensagem, setMensagem] = useState("");
+  const { dados: avaliacoes, carregando, erro, recarregar } = useCarregar(listarAvaliacoes);
+
+  if (avaliacoes === null) {
+    return <EstadoRequisicao carregando={carregando} erro={erro} aoTentar={recarregar} />;
+  }
+
+  async function aoExcluir(id) {
+    try {
+      await removerAvaliacao(id);
+      setSelecionada(null);
+      setMensagem("");
+      recarregar();
+    } catch (e) {
+      setMensagem(e.message);
+    }
+  }
+
   return (
     <View style={estilos.container}>
       <FlatList
         data={avaliacoes}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         contentContainerStyle={estilos.lista}
-        renderItem={({ item }) => {
-          const jogo = buscarJogo(item.jogoId);
-          return (
-            <View style={estilos.card}>
-              <View style={estilos.linha}>
-                <Text style={estilos.jogo}>{jogo.nome}</Text>
-                <Text style={estilos.nota}>{item.nota}/10</Text>
-              </View>
-              <Text style={estilos.autor}>por {item.autor}</Text>
-              <Text style={estilos.comentario}>{item.comentario}</Text>
+        ListEmptyComponent={<Text style={estilos.vazio}>Nenhuma avaliação cadastrada.</Text>}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={estilos.card}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("NovaAvaliacao", { avaliacao: item })}
+            onLongPress={() => setSelecionada(item.id)}
+          >
+            <View style={estilos.linha}>
+              <Text style={estilos.jogo}>{item.jogoNome}</Text>
+              <Text style={estilos.nota}>{item.nota}/10</Text>
             </View>
-          );
-        }}
+            <Text style={estilos.autor}>por {item.autor}</Text>
+            <Text style={estilos.comentario}>{item.comentario}</Text>
+            {selecionada === item.id && (
+              <View style={estilos.linhaAcoes}>
+                <TouchableOpacity style={[estilos.acao, estilos.acaoPerigo]} onPress={() => aoExcluir(item.id)}>
+                  <Text style={estilos.acaoTexto}>Excluir avaliação</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={estilos.acao} onPress={() => setSelecionada(null)}>
+                  <Text style={estilos.acaoTexto}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
       />
+
+      {mensagem !== "" && <Text style={estilos.mensagem}>{mensagem}</Text>}
 
       <TouchableOpacity style={estilos.botao} onPress={() => navigation.navigate("NovaAvaliacao")}>
         <Text style={estilos.botaoTexto}>+ Nova avaliação</Text>
@@ -48,6 +84,21 @@ const estilos = StyleSheet.create({
   nota: { color: cores.destaque, fontWeight: "bold" },
   autor: { color: cores.textoSuave, fontSize: 12, marginTop: 2 },
   comentario: { color: cores.texto, marginTop: 8, lineHeight: 20 },
+  vazio: { color: cores.textoSuave, textAlign: "center", marginTop: espaco.g },
+  mensagem: { position: "absolute", bottom: 74, left: 20, right: 20, color: cores.aviso, fontSize: 13, textAlign: "center" },
+  linhaAcoes: { flexDirection: "row", marginTop: 12 },
+  acao: {
+    flex: 1,
+    backgroundColor: cores.fundo,
+    borderRadius: raio.m,
+    paddingVertical: 10,
+    alignItems: "center",
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: cores.borda,
+  },
+  acaoPerigo: { borderColor: cores.aviso },
+  acaoTexto: { color: cores.texto, fontWeight: "600", fontSize: 13 },
   botao: {
     position: "absolute",
     bottom: 20,
