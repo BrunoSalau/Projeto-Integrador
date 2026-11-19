@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator, StyleSheet, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator, StyleSheet } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { voltarParaFachada } from "../../redux/appSlice";
 import { listarContatosApoio, criarContatoApoio, atualizarContatoApoio, removerContatoApoio } from "../../servicos/redeApoioApi";
 import { coresApoio, espaco, raio } from "../../tema/tema";
 
-export default function MinhaRedeApoioScreen() {
+export default function MinhaRedeApoioScreen({ navigation }) {
+  const dispatch = useDispatch();
   const usuario = useSelector((state) => state.app.usuario);
   const [contatos, setContatos] = useState([]);
   const [nome, setNome] = useState("");
   const [parentesco, setParentesco] = useState("");
   const [telefone, setTelefone] = useState("");
   const [editando, setEditando] = useState(null);
+  const [contatoParaExcluir, setContatoParaExcluir] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
@@ -54,30 +57,20 @@ export default function MinhaRedeApoioScreen() {
     setEditando(contato.id); setNome(contato.nome); setParentesco(contato.parentesco); setTelefone(contato.telefone); setErro("");
   }
 
-  async function confirmarExclusao(contato) {
+  async function confirmarExclusao() {
+    if (!contatoParaExcluir) return;
     try {
-      await removerContatoApoio(contato.id);
+      setErro("");
+      await removerContatoApoio(contatoParaExcluir.id);
+      setContatoParaExcluir(null);
       await carregar();
     } catch (e) {
-      setErro(e.message);
+      setErro(e.message || "Não foi possível excluir o contato.");
     }
   }
 
   function excluir(contato) {
-    const mensagem = `Deseja excluir ${contato.nome} da sua rede de apoio?`;
-
-    // Alert.alert não apresenta a confirmação de forma consistente no Expo Web.
-    if (Platform.OS === "web") {
-      if (typeof globalThis.confirm === "function" && globalThis.confirm(mensagem)) {
-        confirmarExclusao(contato);
-      }
-      return;
-    }
-
-    Alert.alert("Excluir contato", mensagem, [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Excluir", style: "destructive", onPress: () => confirmarExclusao(contato) },
-    ]);
+    setContatoParaExcluir(contato);
   }
 
   function ligar(numero) {
@@ -90,6 +83,14 @@ export default function MinhaRedeApoioScreen() {
 
   return (
     <ScrollView style={estilos.container} contentContainerStyle={estilos.conteudo} keyboardShouldPersistTaps="handled">
+      <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navigation?.canGoBack?.() ? navigation.goBack() : null}>
+        <Ionicons name="arrow-back" size={18} color={coresApoio.primaria} />
+        <Text style={estilos.botaoVoltarTexto}>Voltar à Área de Apoio</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={estilos.botaoSaidaRapida} onPress={() => dispatch(voltarParaFachada())}>
+        <Ionicons name="exit-outline" size={19} color={coresApoio.emergencia} />
+        <Text style={estilos.botaoSaidaRapidaTexto}>Saída rápida</Text>
+      </TouchableOpacity>
       <Text style={estilos.intro}>Cadastre pessoas de confiança que você gostaria de ter à mão.</Text>
       <View style={estilos.formulario}>
         <Text style={estilos.titulo}>{editando ? "Editar contato" : "Adicionar pessoa de confiança"}</Text>
@@ -122,9 +123,22 @@ export default function MinhaRedeApoioScreen() {
           <TouchableOpacity style={estilos.acao} onPress={() => iniciarEdicao(contato)} accessibilityLabel={`Editar ${contato.nome}`}>
             <Ionicons name="create-outline" size={21} color={coresApoio.primaria} />
           </TouchableOpacity>
-          <TouchableOpacity style={estilos.acao} onPress={() => excluir(contato)} accessibilityLabel={`Excluir ${contato.nome}`}>
+          <TouchableOpacity style={estilos.acao} onPress={() => excluir(contato)} accessibilityRole="button" accessibilityLabel={`Excluir ${contato.nome}`}>
             <Ionicons name="trash-outline" size={20} color={coresApoio.emergencia} />
           </TouchableOpacity>
+          {contatoParaExcluir?.id === contato.id && (
+            <View style={estilos.confirmacaoExclusao}>
+              <Text style={estilos.textoConfirmacao}>Excluir este contato?</Text>
+              <View style={estilos.acoesConfirmacao}>
+                <TouchableOpacity onPress={() => setContatoParaExcluir(null)} style={estilos.botaoCancelarExclusao}>
+                  <Text style={estilos.textoCancelarExclusao}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={confirmarExclusao} style={estilos.botaoConfirmarExclusao}>
+                  <Text style={estilos.textoBotaoConfirmar}>Excluir</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       ))}
       <Text style={estilos.privacidade}>Seus contatos são privados e vinculados à sua conta. O cadastro não envia mensagens nem alertas automaticamente. Cadastre apenas pessoas de sua confiança.</Text>
@@ -135,6 +149,10 @@ export default function MinhaRedeApoioScreen() {
 const estilos = StyleSheet.create({
   container: { flex: 1, backgroundColor: coresApoio.fundo },
   conteudo: { padding: espaco.m, paddingBottom: 48 },
+  botaoVoltar: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", paddingVertical: 8, marginBottom: 8, gap: 6 },
+  botaoVoltarTexto: { color: coresApoio.primaria, fontSize: 13, fontWeight: "600" },
+  botaoSaidaRapida: { flexDirection: "row", alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: coresApoio.emergencia, borderRadius: raio.m, paddingVertical: 12, marginBottom: espaco.m, backgroundColor: coresApoio.superficie, gap: 8 },
+  botaoSaidaRapidaTexto: { color: coresApoio.emergencia, fontWeight: "bold", fontSize: 14 },
   intro: { color: coresApoio.textoSuave, fontSize: 14, lineHeight: 20, marginBottom: espaco.m },
   formulario: { backgroundColor: coresApoio.superficie, borderRadius: raio.g, padding: espaco.m, borderWidth: 1, borderColor: coresApoio.borda, marginBottom: espaco.g },
   titulo: { color: coresApoio.texto, fontSize: 16, fontWeight: "bold", marginBottom: 14 },
@@ -149,6 +167,13 @@ const estilos = StyleSheet.create({
   vazio: { color: coresApoio.textoSuave, fontSize: 13, paddingVertical: 16 },
   card: { flexDirection: "row", alignItems: "center", backgroundColor: coresApoio.superficie, borderRadius: raio.g, borderWidth: 1, borderColor: coresApoio.borda, padding: 12, marginBottom: 10 },
   dadosContato: { flex: 1 },
+  confirmacaoExclusao: { position: "absolute", left: 8, right: 8, bottom: -54, zIndex: 2, backgroundColor: coresApoio.superficie, borderWidth: 1, borderColor: coresApoio.borda, borderRadius: raio.m, padding: 9, elevation: 4 },
+  textoConfirmacao: { color: coresApoio.texto, fontSize: 12, fontWeight: "600", marginBottom: 7 },
+  acoesConfirmacao: { flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: 12 },
+  botaoCancelarExclusao: { paddingVertical: 5, paddingHorizontal: 8 },
+  textoCancelarExclusao: { color: coresApoio.textoSuave, fontSize: 12, fontWeight: "600" },
+  botaoConfirmarExclusao: { backgroundColor: coresApoio.emergencia, paddingVertical: 6, paddingHorizontal: 12, borderRadius: raio.m },
+  textoBotaoConfirmar: { color: "#fff", fontSize: 12, fontWeight: "bold" },
   nome: { color: coresApoio.texto, fontSize: 15, fontWeight: "bold" },
   parentesco: { color: coresApoio.textoSuave, fontSize: 12, marginTop: 2 },
   telefone: { color: coresApoio.texto, fontSize: 13, marginTop: 5 },
