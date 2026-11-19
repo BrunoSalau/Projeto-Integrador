@@ -1,8 +1,10 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ScrollView, Linking, Alert, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator, StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { voltarParaFachada } from "../../redux/appSlice";
+import useCarregar from "../../servicos/useCarregar";
+import { listarIndicadores } from "../../servicos/indicadoresApi";
 import { coresApoio, espaco, raio } from "../../tema/tema";
 
 const canais = [
@@ -16,8 +18,13 @@ function ligar(numero) {
   );
 }
 
+function formatar(numero) {
+  return String(numero).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 export default function AreaApoioScreen() {
   const dispatch = useDispatch();
+  const { dados: indicadores, carregando, erro, recarregar } = useCarregar(listarIndicadores);
 
   return (
     <ScrollView style={estilos.container} contentContainerStyle={estilos.conteudo}>
@@ -42,6 +49,35 @@ export default function AreaApoioScreen() {
         <Ionicons name="exit-outline" size={20} color={coresApoio.primaria} />
         <Text style={estilos.botaoSairTexto}>Saída rápida</Text>
       </TouchableOpacity>
+
+      <View style={estilos.indicadores}>
+        <Text style={estilos.indicadoresTitulo}>Contexto regional</Text>
+        <Text style={estilos.indicadoresAviso}>
+          Estimativa acadêmica, agregada por região, a partir de dados públicos do Atlas da Violência (Ipea). Não indica risco individual e não substitui os serviços oficiais.
+        </Text>
+
+        {indicadores === null && carregando && <ActivityIndicator color={coresApoio.primaria} />}
+
+        {indicadores === null && !carregando && (
+          <TouchableOpacity onPress={recarregar}>
+            <Text style={estilos.indicadoresErro}>Indicadores indisponíveis no momento. Toque para tentar de novo.</Text>
+          </TouchableOpacity>
+        )}
+
+        {indicadores !== null &&
+          indicadores.map((item) => (
+            <View key={item.id} style={estilos.indicadorLinha}>
+              <Text style={estilos.indicadorRegiao}>{item.regiao}</Text>
+              <Text style={estilos.indicadorTexto}>
+                {formatar(item.observado)} registros em {item.anoObservado} · estimativa {item.anoEstimado}: {formatar(item.estimado)} (± {formatar(item.margem)})
+              </Text>
+            </View>
+          ))}
+
+        {indicadores !== null && (
+          <Text style={estilos.indicadoresFonte}>Modelo: {indicadores[0]?.modelo}. A margem é o erro médio absoluto da validação cruzada.</Text>
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -71,6 +107,21 @@ const estilos = StyleSheet.create({
   },
   botaoLigarTexto: { color: "#fff", fontWeight: "bold", fontSize: 16, marginLeft: 8 },
   aviso: { color: coresApoio.textoSuave, fontSize: 12, lineHeight: 18, textAlign: "center", marginVertical: espaco.m },
+  indicadores: {
+    backgroundColor: coresApoio.superficie,
+    borderRadius: raio.g,
+    padding: espaco.m,
+    marginTop: espaco.m,
+    borderWidth: 1,
+    borderColor: coresApoio.borda,
+  },
+  indicadoresTitulo: { color: coresApoio.texto, fontSize: 16, fontWeight: "bold" },
+  indicadoresAviso: { color: coresApoio.textoSuave, fontSize: 12, lineHeight: 18, marginTop: 4, marginBottom: 10 },
+  indicadoresErro: { color: coresApoio.primaria, fontSize: 13 },
+  indicadorLinha: { paddingVertical: 8, borderTopWidth: 1, borderTopColor: coresApoio.borda },
+  indicadorRegiao: { color: coresApoio.texto, fontWeight: "600", fontSize: 14 },
+  indicadorTexto: { color: coresApoio.textoSuave, fontSize: 12, marginTop: 2 },
+  indicadoresFonte: { color: coresApoio.textoSuave, fontSize: 11, marginTop: 10 },
   botaoSair: {
     flexDirection: "row",
     alignItems: "center",
