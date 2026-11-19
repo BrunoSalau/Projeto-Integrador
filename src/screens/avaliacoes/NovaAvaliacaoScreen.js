@@ -1,13 +1,15 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { buscarJogoPorNome } from "../../servicos/jogosApi";
 import { criarAvaliacao, atualizarAvaliacao } from "../../servicos/avaliacoesApi";
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function NovaAvaliacaoScreen({ navigation, route }) {
+  const usuario = useSelector((state) => state.app.usuario);
   const avaliacao = route.params?.avaliacao;
   const [jogo, setJogo] = useState(avaliacao ? avaliacao.jogoNome : "");
-  const [autor, setAutor] = useState(avaliacao ? avaliacao.autor : "");
+  const autor = usuario?.nome || "";
   const [nota, setNota] = useState(avaliacao ? String(avaliacao.nota) : "");
   const [comentario, setComentario] = useState(avaliacao ? avaliacao.comentario : "");
   const [mensagem, setMensagem] = useState("");
@@ -15,8 +17,8 @@ export default function NovaAvaliacaoScreen({ navigation, route }) {
 
   async function aoSalvar() {
     const valorNota = Number(nota);
-    if (jogo.trim() === "" || autor.trim() === "") {
-      setMensagem("Informe o jogo e o seu nome.");
+    if (jogo.trim() === "" || !autor) {
+      setMensagem("Informe o jogo.");
       return;
     }
     if (nota.trim() === "" || !Number.isInteger(valorNota) || valorNota < 0 || valorNota > 10) {
@@ -54,17 +56,6 @@ export default function NovaAvaliacaoScreen({ navigation, route }) {
           value={jogo}
           onChangeText={setJogo}
           placeholder="Ex.: Nebula Rift"
-          placeholderTextColor={cores.textoSuave}
-        />
-      </View>
-
-      <View style={estilos.campo}>
-        <Text style={estilos.rotulo}>Seu nome</Text>
-        <TextInput
-          style={estilos.input}
-          value={autor}
-          onChangeText={setAutor}
-          placeholder="Ex.: Marina"
           placeholderTextColor={cores.textoSuave}
         />
       </View>

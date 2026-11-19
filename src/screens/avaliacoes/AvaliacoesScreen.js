@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import EstadoRequisicao from "../../componentes/EstadoRequisicao";
 import useCarregar from "../../servicos/useCarregar";
@@ -6,6 +7,7 @@ import { listarAvaliacoes, removerAvaliacao } from "../../servicos/avaliacoesApi
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function AvaliacoesScreen({ navigation }) {
+  const usuario = useSelector((state) => state.app.usuario);
   const [selecionada, setSelecionada] = useState(null);
   const [mensagem, setMensagem] = useState("");
   const { dados: avaliacoes, carregando, erro, recarregar } = useCarregar(listarAvaliacoes);
@@ -36,8 +38,14 @@ export default function AvaliacoesScreen({ navigation }) {
           <TouchableOpacity
             style={estilos.card}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate("NovaAvaliacao", { avaliacao: item })}
-            onLongPress={() => setSelecionada(item.id)}
+            onPress={() => {
+              if (usuario?.role === "user" && item.userId === usuario.id) {
+                navigation.navigate("NovaAvaliacao", { avaliacao: item });
+              }
+            }}
+            onLongPress={() => {
+              if (usuario?.role === "user" && item.userId === usuario.id) setSelecionada(item.id);
+            }}
           >
             <View style={estilos.linha}>
               <Text style={estilos.jogo}>{item.jogoNome}</Text>
@@ -45,7 +53,7 @@ export default function AvaliacoesScreen({ navigation }) {
             </View>
             <Text style={estilos.autor}>por {item.autor}</Text>
             <Text style={estilos.comentario}>{item.comentario}</Text>
-            {selecionada === item.id && (
+            {selecionada === item.id && usuario?.role === "user" && item.userId === usuario.id && (
               <View style={estilos.linhaAcoes}>
                 <TouchableOpacity style={[estilos.acao, estilos.acaoPerigo]} onPress={() => aoExcluir(item.id)}>
                   <Text style={estilos.acaoTexto}>Excluir avaliação</Text>
@@ -61,9 +69,9 @@ export default function AvaliacoesScreen({ navigation }) {
 
       {mensagem !== "" && <Text style={estilos.mensagem}>{mensagem}</Text>}
 
-      <TouchableOpacity style={estilos.botao} onPress={() => navigation.navigate("NovaAvaliacao")}>
+      {usuario?.role === "user" && <TouchableOpacity style={estilos.botao} onPress={() => navigation.navigate("NovaAvaliacao")}>
         <Text style={estilos.botaoTexto}>+ Nova avaliação</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>}
     </View>
   );
 }

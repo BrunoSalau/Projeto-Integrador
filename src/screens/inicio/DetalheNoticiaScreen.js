@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import EstadoRequisicao from "../../componentes/EstadoRequisicao";
 import useCarregar from "../../servicos/useCarregar";
@@ -6,6 +7,7 @@ import { buscarNoticia, removerNoticia } from "../../servicos/noticiasApi";
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function DetalheNoticiaScreen({ navigation, route }) {
+  const usuario = useSelector((state) => state.app.usuario);
   const noticiaId = route.params.noticiaId;
   const [confirmando, setConfirmando] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -36,7 +38,7 @@ export default function DetalheNoticiaScreen({ navigation, route }) {
 
         {mensagem !== "" && <Text style={estilos.mensagem}>{mensagem}</Text>}
 
-        {confirmando ? (
+        {usuario?.role === "admin" && (confirmando ? (
           <View style={estilos.linhaAcoes}>
             <TouchableOpacity style={[estilos.acao, estilos.acaoPerigo]} onPress={aoExcluir}>
               <Text style={estilos.acaoTexto}>Confirmar exclusão</Text>
@@ -54,7 +56,7 @@ export default function DetalheNoticiaScreen({ navigation, route }) {
               <Text style={estilos.acaoTexto}>Excluir</Text>
             </TouchableOpacity>
           </View>
-        )}
+        ))}
       </View>
     </ScrollView>
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import CardJogo from "../../componentes/CardJogo";
@@ -16,6 +17,7 @@ async function buscarInicio() {
 }
 
 export default function HomeScreen({ navigation }) {
+  const usuario = useSelector((state) => state.app.usuario);
   const { dados, carregando, erro, recarregar } = useCarregar(buscarInicio);
 
   if (dados === null) {
@@ -70,9 +72,9 @@ export default function HomeScreen({ navigation }) {
 
       <View style={estilos.linhaSecao}>
         <Text style={estilos.secaoTitulo}>Últimas notícias</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("NovaNoticia")} hitSlop={10}>
+        {usuario?.role === "admin" && <TouchableOpacity onPress={() => navigation.navigate("NovaNoticia")} hitSlop={10}>
           <Text style={estilos.novo}>+ Nova</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>}
       </View>
     </View>
   );

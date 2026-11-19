@@ -1,58 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } from "react-native";
+import { useDispatch } from "react-redux";
 import { cores, espaco, raio } from "../../tema/tema";
-import { useNavigation } from "@react-navigation/native";
+import { entrar, cadastrar } from "../../servicos/autenticacaoApi";
+import { definirUsuario } from "../../redux/appSlice";
 
 export default function LoginScreen() {
-    const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [modoCadastro, setModoCadastro] = useState(false);
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [mensagem, setMensagem] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
+  async function aoEnviar() {
+    setMensagem("");
+    setCarregando(true);
+    try {
+      const resposta = modoCadastro
+        ? await cadastrar(nome, email, senha)
+        : await entrar(email, senha);
+      dispatch(definirUsuario(resposta.usuario));
+    } catch (erro) {
+      setMensagem(erro.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
   return (
-    <ScrollView
-      style={estilos.container}
-      contentContainerStyle={estilos.conteudo}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-    >
+    <ScrollView style={estilos.container} contentContainerStyle={estilos.conteudo} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
       <View style={estilos.formulario}>
-        <Image
-          source={require("../../../assets/gamehub/logo.png")}
-          style={estilos.logo}
-          resizeMode="contain"
-        />
-
+        <Image source={require("../../../assets/gamehub/logo.png")} style={estilos.logo} resizeMode="contain" />
         <Text style={estilos.titulo}>GameHub</Text>
-
+        {modoCadastro && <View style={estilos.campo}>
+          <Text style={estilos.rotulo}>Nome</Text>
+          <TextInput style={estilos.input} value={nome} onChangeText={setNome} placeholder="Digite seu nome" placeholderTextColor={cores.textoSuave} autoCapitalize="words" />
+        </View>}
         <View style={estilos.campo}>
           <Text style={estilos.rotulo}>E-mail</Text>
-          <TextInput
-            style={estilos.input}
-            placeholder="Digite seu e-mail"
-            placeholderTextColor={cores.textoSuave}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <TextInput style={estilos.input} value={email} onChangeText={setEmail} placeholder="Digite seu e-mail" placeholderTextColor={cores.textoSuave} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
         </View>
-
         <View style={estilos.campo}>
           <Text style={estilos.rotulo}>Senha</Text>
-          <TextInput
-            style={estilos.input}
-            placeholder="Digite sua senha"
-            placeholderTextColor={cores.textoSuave}
-            secureTextEntry
-            autoCapitalize="none"
-          />
+          <TextInput style={estilos.input} value={senha} onChangeText={setSenha} placeholder="Mínimo de 8 caracteres" placeholderTextColor={cores.textoSuave} secureTextEntry autoCapitalize="none" />
         </View>
-
-        <TouchableOpacity
-            style={estilos.botao}
-            activeOpacity={0.8}
-            onPress={() => navigation.replace("Principal")}
-            >
-            <Text style={estilos.botaoTexto}>Entrar</Text>
+        {mensagem !== "" && <Text style={estilos.mensagem}>{mensagem}</Text>}
+        <TouchableOpacity style={estilos.botao} activeOpacity={0.8} onPress={aoEnviar} disabled={carregando}>
+          <Text style={estilos.botaoTexto}>{carregando ? "Aguarde..." : modoCadastro ? "Criar conta" : "Entrar"}</Text>
         </TouchableOpacity>
-
-        <Text style={estilos.esqueciSenha}>Esqueci minha senha</Text>
+        <TouchableOpacity onPress={() => { setModoCadastro(!modoCadastro); setMensagem(""); }} style={estilos.alternar}>
+          <Text style={estilos.esqueciSenha}>{modoCadastro ? "Já tenho uma conta. Entrar" : "Não tem conta? Criar conta"}</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -124,4 +124,6 @@ const estilos = StyleSheet.create({
     textAlign: "center",
     marginTop: espaco.m,
   },
+  mensagem: { color: cores.aviso, fontSize: 13, textAlign: "center", marginBottom: espaco.m },
+  alternar: { paddingVertical: espaco.m },
 });
