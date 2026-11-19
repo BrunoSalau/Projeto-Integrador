@@ -14,7 +14,7 @@ function responderConstraint(erro, res) {
 }
 
 function criarRotasCrud(banco, config) {
-  const { tabela, rotulo, campos, selecao, validar, relacionar, somenteLeitura } = config;
+  const { tabela, rotulo, campos, selecao, validar, relacionar, somenteLeitura, protegerEscrita, autorizarCriacao, autorizarRegistro, prepararAtualizacao } = config;
   const roteador = express.Router();
   const nomes = Object.keys(campos);
   const base = selecao || `SELECT ${tabela}.* FROM ${tabela}`;
@@ -68,10 +68,11 @@ function criarRotasCrud(banco, config) {
 
   if (somenteLeitura) return roteador;
 
-  roteador.post("/", (req, res) => {
+  roteador.post("/", ...(protegerEscrita ? [protegerEscrita] : []), (req, res) => {
     const dados = limpar(req.body || {});
     const erros = validarTudo(dados);
     if (erros.length > 0) return res.status(400).json({ erros });
+    if (autorizarCriacao && !autorizarCriacao(req, dados, res)) return;
     const colunas = Object.keys(dados);
     try {
       const resultado = banco
@@ -83,12 +84,14 @@ function criarRotasCrud(banco, config) {
     }
   });
 
-  roteador.put("/:id", (req, res) => {
+  roteador.put("/:id", ...(protegerEscrita ? [protegerEscrita] : []), (req, res) => {
     const id = lerId(req.params.id);
     if (id === null) return res.status(400).json({ erros: ["O id informado é inválido."] });
     const atual = banco.prepare(`SELECT * FROM ${tabela} WHERE id = ?`).get(id);
     if (!atual) return res.status(404).json({ erro: `${rotulo} com id ${id} não encontrado.` });
+    if (autorizarRegistro && !autorizarRegistro(req, atual, res)) return;
     const dados = { ...limpar(atual), ...limpar(req.body || {}) };
+    if (prepararAtualizacao) prepararAtualizacao(req, dados, atual);
     const erros = validarTudo(dados);
     if (erros.length > 0) return res.status(400).json({ erros });
     const atribuicoes = Object.keys(dados).map((c) => `${c} = @${c}`).join(", ");
@@ -100,11 +103,12 @@ function criarRotasCrud(banco, config) {
     }
   });
 
-  roteador.delete("/:id", (req, res) => {
+  roteador.delete("/:id", ...(protegerEscrita ? [protegerEscrita] : []), (req, res) => {
     const id = lerId(req.params.id);
     if (id === null) return res.status(400).json({ erros: ["O id informado é inválido."] });
     const item = buscarPorId(id);
     if (!item) return res.status(404).json({ erro: `${rotulo} com id ${id} não encontrado.` });
+    if (autorizarRegistro && !autorizarRegistro(req, item, res)) return;
     try {
       banco.prepare(`DELETE FROM ${tabela} WHERE id = ?`).run(id);
     } catch (erro) {
