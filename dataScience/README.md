@@ -1,4 +1,4 @@
-# Entrega 2 — Data Science
+# Data Science — Entregas 2 e 4
 
 Bruno Henrique e Luiz Henrique · 24/10/2026
 
@@ -71,3 +71,25 @@ Ainda será necessário enviar os links no AVA. Não foram criados commits, hist
 ## Verificação de execução
 
 O notebook foi executado integralmente em um kernel Python novo, com 15 células de código e sem erros. O CSV final contém 120 linhas e preserva os mesmos valores do CSV simplificado anterior. Os hashes dos sete arquivos brutos foram conferidos. As cinco taxas ausentes de 2023 foram mantidas.
+
+## Entrega 4 — modelagem e integração
+
+Arquivos novos desta etapa:
+
+- `data-science/notebook_modelagem.ipynb`: modelagem executada de ponta a ponta (já vem com as saídas).
+- `data-science/dados/indicadores_regionais.json`: estimativa por região gerada pelo notebook. Uma cópia é gravada em `api/dados/indicadores.json`, que a API carrega na tabela `indicadores`.
+
+O notebook executa o plano da seção 6 do notebook da Entrega 2. Objetivo: estimar a contagem registrada de homicídios de mulheres por região no ano seguinte (estimativa agregada, não risco individual).
+
+| Item | Como foi feito |
+|---|---|
+| Modelos comparados | Referência (repete o ano anterior) e regressão Ridge (crescimento anterior + região), com cinco valores de regularização |
+| Validação | Validação cruzada temporal de janela expansiva (quatro folds de dois anos, entre 2012 e 2019) e teste final reservado em 2020–2023, sem embaralhar anos |
+| Métricas | MAE, RMSE e MAPE, no total e por região |
+| Escolha do modelo | Menor MAE médio na validação cruzada, definida antes de olhar o teste |
+| Resultado | A referência teve MAE médio de 70,9 contra 75,6 do melhor Ridge. No teste, o Ridge teve MAE 46,7 e a referência 50,8, mas o MAPE do Ridge não foi melhor (6,98% contra 6,86%). Com poucos dados, a diferença não é conclusiva, então a estimativa usa a referência |
+| Integração | A API serve `GET /indicadores`; a Área de Apoio mostra, por região, o último valor observado (2023), a estimativa de 2024 e a margem (MAE da validação cruzada), sempre com o aviso de estimativa acadêmica |
+
+Limitações: 24 anos por região, sub-registro, revisões e mudanças de classificação; a estimativa de 2024 não pode ser conferida com a base atual. O resultado não permite concluir sobre o risco de uma pessoa nem explica causas.
+
+Para executar, instale `data-science/requirements.txt` (agora inclui `scikit-learn`) e rode o notebook com a pasta `data-science/` como diretório atual.
