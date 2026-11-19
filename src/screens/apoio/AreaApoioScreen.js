@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, ScrollView, Linking, Alert, ActivityIndicator, StyleSheet } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { voltarParaFachada } from "../../redux/appSlice";
 import useCarregar from "../../servicos/useCarregar";
@@ -22,8 +22,9 @@ function formatar(numero) {
   return String(numero).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-export default function AreaApoioScreen() {
+export default function AreaApoioScreen({ navigation }) {
   const dispatch = useDispatch();
+  const usuario = useSelector((state) => state.app.usuario);
   const { dados: indicadores, carregando, erro, recarregar } = useCarregar(listarIndicadores);
 
   return (
@@ -44,6 +45,14 @@ export default function AreaApoioScreen() {
       <Text style={estilos.aviso}>
         Protótipo acadêmico. Este aplicativo não substitui atendimento policial, jurídico, psicológico ou de saúde.
       </Text>
+
+      {usuario?.role === "user" && (
+        <TouchableOpacity style={estilos.botaoRede} onPress={() => navigation.navigate("MinhaRedeApoio")}>
+          <Ionicons name="people-outline" size={21} color="#fff" />
+          <Text style={estilos.botaoRedeTexto}>Minha Rede de Apoio</Text>
+          <Ionicons name="chevron-forward" size={20} color="#fff" />
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity style={estilos.botaoSair} onPress={() => dispatch(voltarParaFachada())}>
         <Ionicons name="exit-outline" size={20} color={coresApoio.primaria} />
@@ -122,6 +131,8 @@ const estilos = StyleSheet.create({
   indicadorRegiao: { color: coresApoio.texto, fontWeight: "600", fontSize: 14 },
   indicadorTexto: { color: coresApoio.textoSuave, fontSize: 12, marginTop: 2 },
   indicadoresFonte: { color: coresApoio.textoSuave, fontSize: 11, marginTop: 10 },
+  botaoRede: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, backgroundColor: coresApoio.primaria, borderRadius: raio.m, paddingVertical: 14, marginBottom: espaco.m },
+  botaoRedeTexto: { color: "#fff", fontSize: 15, fontWeight: "bold", flex: 1, textAlign: "center" },
   botaoSair: {
     flexDirection: "row",
     alignItems: "center",
