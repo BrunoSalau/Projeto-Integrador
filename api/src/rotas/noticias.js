@@ -1,4 +1,5 @@
 const { criarRotasCrud } = require("../crud");
+const { somenteAdmin } = require("../autenticacao");
 
 const esquema = `
 CREATE TABLE IF NOT EXISTS noticias (
@@ -74,6 +75,7 @@ function criarRotas(banco) {
     rotulo: "Notícia",
     campos: { titulo: "texto", resumo: "texto", categoria: "texto", data: "texto", capa: "texto", texto: "texto" },
     validar,
+    protegerEscrita: somenteAdmin,
   });
 }
 
