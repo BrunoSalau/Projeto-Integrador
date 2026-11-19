@@ -1,0 +1,47 @@
+[
+  {
+    "regiao": "Centro-Oeste",
+    "anoObservado": 2023,
+    "observado": 316,
+    "anoEstimado": 2024,
+    "estimado": 316,
+    "margem": 29,
+    "modelo": "Referência (repete o ano anterior)"
+  },
+  {
+    "regiao": "Nordeste",
+    "anoObservado": 2023,
+    "observado": 1464,
+    "anoEstimado": 2024,
+    "estimado": 1464,
+    "margem": 133,
+    "modelo": "Referência (repete o ano anterior)"
+  },
+  {
+    "regiao": "Norte",
+    "anoObservado": 2023,
+    "observado": 462,
+    "anoEstimado": 2024,
+    "estimado": 462,
+    "margem": 50,
+    "modelo": "Referência (repete o ano anterior)"
+  },
+  {
+    "regiao": "Sudeste",
+    "anoObservado": 2023,
+    "observado": 1102,
+    "anoEstimado": 2024,
+    "estimado": 1102,
+    "margem": 93,
+    "modelo": "Referência (repete o ano anterior)"
+  },
+  {
+    "regiao": "Sul",
+    "anoObservado": 2023,
+    "observado": 559,
+    "anoEstimado": 2024,
+    "estimado": 559,
+    "margem": 50,
+    "modelo": "Referência (repete o ano anterior)"
+  }
+]
