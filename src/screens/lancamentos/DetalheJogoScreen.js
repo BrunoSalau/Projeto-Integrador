@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import EstadoRequisicao from "../../componentes/EstadoRequisicao";
 import useCarregar from "../../servicos/useCarregar";
@@ -7,6 +8,7 @@ import { listarAvaliacoes } from "../../servicos/avaliacoesApi";
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function DetalheJogoScreen({ navigation, route }) {
+  const usuario = useSelector((state) => state.app.usuario);
   const jogoId = route.params.jogoId;
   const [confirmando, setConfirmando] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -62,7 +64,7 @@ export default function DetalheJogoScreen({ navigation, route }) {
 
         {mensagem !== "" && <Text style={estilos.mensagem}>{mensagem}</Text>}
 
-        {confirmando ? (
+        {usuario?.role === "admin" && (confirmando ? (
           <View style={estilos.linhaAcoes}>
             <TouchableOpacity style={[estilos.acao, estilos.acaoPerigo]} onPress={aoExcluir}>
               <Text style={estilos.acaoTexto}>Confirmar exclusão</Text>
@@ -80,7 +82,7 @@ export default function DetalheJogoScreen({ navigation, route }) {
               <Text style={estilos.acaoTexto}>Excluir</Text>
             </TouchableOpacity>
           </View>
-        )}
+        ))}
       </View>
     </ScrollView>
   );

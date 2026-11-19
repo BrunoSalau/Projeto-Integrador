@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import EstadoRequisicao from "../../componentes/EstadoRequisicao";
 import useCarregar from "../../servicos/useCarregar";
@@ -7,6 +8,7 @@ import { listarCategorias } from "../../servicos/categoriasApi";
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function NovoJogoScreen({ navigation, route }) {
+  const usuario = useSelector((state) => state.app.usuario);
   const jogo = route.params?.jogo;
   const [nome, setNome] = useState(jogo ? jogo.nome : "");
   const [categoriaId, setCategoriaId] = useState(jogo ? jogo.categoriaId : null);
@@ -17,6 +19,16 @@ export default function NovoJogoScreen({ navigation, route }) {
   const [mensagem, setMensagem] = useState("");
   const [salvando, setSalvando] = useState(false);
   const { dados: categorias, carregando, erro, recarregar } = useCarregar(listarCategorias);
+
+  if (usuario?.role !== "admin") {
+    return (
+      <View style={estilos.container}>
+        <View style={estilos.conteudo}>
+          <Text style={estilos.mensagem}>Somente administradores podem gerenciar os lançamentos.</Text>
+        </View>
+      </View>
+    );
+  }
 
   if (categorias === null) {
     return <EstadoRequisicao carregando={carregando} erro={erro} aoTentar={recarregar} />;

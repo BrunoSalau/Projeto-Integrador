@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import CardJogo from "../../componentes/CardJogo";
 import EstadoRequisicao from "../../componentes/EstadoRequisicao";
@@ -7,6 +8,7 @@ import { listarJogos } from "../../servicos/jogosApi";
 import { cores, espaco, raio } from "../../tema/tema";
 
 export default function LancamentosScreen({ navigation, route }) {
+  const usuario = useSelector((state) => state.app.usuario);
   const genero = route.params?.genero;
   const { dados: jogos, carregando, erro, recarregar } = useCarregar(listarJogos);
 
@@ -38,9 +40,11 @@ export default function LancamentosScreen({ navigation, route }) {
           <CardJogo jogo={item} variante="linha" onPress={() => navigation.navigate("DetalheJogo", { jogoId: item.id })} />
         )}
       />
-      <TouchableOpacity style={estilos.botao} onPress={() => navigation.navigate("NovoJogo")}>
-        <Text style={estilos.botaoTexto}>+ Novo jogo</Text>
-      </TouchableOpacity>
+      {usuario?.role === "admin" && (
+        <TouchableOpacity style={estilos.botao} onPress={() => navigation.navigate("NovoJogo")}>
+          <Text style={estilos.botaoTexto}>+ Novo jogo</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
