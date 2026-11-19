@@ -5,8 +5,15 @@ const appSlice = createSlice({
   initialState: {
     modo: "fachada",
     jogosJogados: null,
+    usuario: null,
   },
   reducers: {
+    definirUsuario(state, action) {
+      state.usuario = action.payload;
+    },
+    limparUsuario(state) {
+      state.usuario = null;
+    },
     abrirApoio(state) {
       state.modo = "apoio";
     },
@@ -19,5 +26,5 @@ const appSlice = createSlice({
   },
 });
 
-export const { abrirApoio, voltarParaFachada, salvarJogosJogados } = appSlice.actions;
+export const { definirUsuario, limparUsuario, abrirApoio, voltarParaFachada, salvarJogosJogados } = appSlice.actions;
 export default appSlice.reducer;
