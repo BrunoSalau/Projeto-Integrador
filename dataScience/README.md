@@ -83,12 +83,12 @@ O notebook executa o plano da seção 6 do notebook da Entrega 2. Objetivo: esti
 
 | Item | Como foi feito |
 |---|---|
-| Modelos comparados | Referência (repete o ano anterior) e regressão Ridge (crescimento anterior + região), com cinco valores de regularização |
+| Modelos comparados | Referência (repete o ano anterior), tendência linear dos últimos 5 anos e regressão Ridge (crescimento anterior + região), com cinco valores de regularização |
 | Validação | Validação cruzada temporal de janela expansiva (quatro folds de dois anos, entre 2012 e 2019) e teste final reservado em 2020–2023, sem embaralhar anos |
 | Métricas | MAE, RMSE e MAPE, no total e por região |
 | Escolha do modelo | Menor MAE médio na validação cruzada, definida antes de olhar o teste |
-| Resultado | A referência teve MAE médio de 70,9 contra 75,6 do melhor Ridge. No teste, o Ridge teve MAE 46,7 e a referência 50,8, mas o MAPE do Ridge não foi melhor (6,98% contra 6,86%). Com poucos dados, a diferença não é conclusiva, então a estimativa usa a referência |
-| Integração | A API serve `GET /indicadores`; a Área de Apoio mostra, por região, o último valor observado (2023), a estimativa de 2024 e a margem (MAE da validação cruzada), sempre com o aviso de estimativa acadêmica |
+| Resultado | A tendência linear teve o menor MAE médio na validação cruzada (68,7), contra 70,9 da referência e 75,6 do melhor Ridge, e por isso gera a estimativa do app. A vantagem é pequena e não conclusiva, e o teste final não a confirmou: tendência linear com MAE 72,6, referência 50,8 e Ridge 46,7. Nenhum modelo testado supera de forma confiável o uso do último valor |
+| Integração | A API serve `GET /indicadores`; a Área de Apoio mostra, por região, o último valor observado (2023), a estimativa de 2024 (pela tendência linear) e a margem (MAE da validação cruzada), sempre com o aviso de estimativa acadêmica |
 
 Limitações: 24 anos por região, sub-registro, revisões e mudanças de classificação; a estimativa de 2024 não pode ser conferida com a base atual. O resultado não permite concluir sobre o risco de uma pessoa nem explica causas.
 

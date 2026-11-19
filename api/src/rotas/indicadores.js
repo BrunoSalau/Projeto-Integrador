@@ -16,15 +16,19 @@ CREATE TABLE IF NOT EXISTS indicadores (
 `;
 
 function semente(banco) {
-  const { total } = banco.prepare("SELECT COUNT(*) AS total FROM indicadores").get();
-  if (total > 0) return;
+  // Os indicadores vêm do notebook de Data Science (dados/indicadores.json).
+  // A tabela é somente leitura na API, então é recarregada do arquivo a cada início:
+  // assim, ao reexecutar o notebook, o banco já passa a refletir o resultado novo.
   const arquivo = path.join(__dirname, "..", "..", "dados", "indicadores.json");
   if (!fs.existsSync(arquivo)) return;
   const registros = JSON.parse(fs.readFileSync(arquivo, "utf-8"));
   const inserir = banco.prepare(
     "INSERT INTO indicadores (regiao, anoObservado, observado, anoEstimado, estimado, margem, modelo) VALUES (@regiao, @anoObservado, @observado, @anoEstimado, @estimado, @margem, @modelo)"
   );
-  for (const registro of registros) inserir.run(registro);
+  banco.transaction(() => {
+    banco.prepare("DELETE FROM indicadores").run();
+    for (const registro of registros) inserir.run(registro);
+  })();
 }
 
 function criarRotas(banco) {

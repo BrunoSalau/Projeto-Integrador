@@ -4,44 +4,44 @@
     "anoObservado": 2023,
     "observado": 316,
     "anoEstimado": 2024,
-    "estimado": 316,
-    "margem": 29,
-    "modelo": "Referência (repete o ano anterior)"
+    "estimado": 321,
+    "margem": 33,
+    "modelo": "Tendência linear (5 anos)"
   },
   {
     "regiao": "Nordeste",
     "anoObservado": 2023,
     "observado": 1464,
     "anoEstimado": 2024,
-    "estimado": 1464,
-    "margem": 133,
-    "modelo": "Referência (repete o ano anterior)"
+    "estimado": 1493,
+    "margem": 151,
+    "modelo": "Tendência linear (5 anos)"
   },
   {
     "regiao": "Norte",
     "anoObservado": 2023,
     "observado": 462,
     "anoEstimado": 2024,
-    "estimado": 462,
-    "margem": 50,
-    "modelo": "Referência (repete o ano anterior)"
+    "estimado": 463,
+    "margem": 42,
+    "modelo": "Tendência linear (5 anos)"
   },
   {
     "regiao": "Sudeste",
     "anoObservado": 2023,
     "observado": 1102,
     "anoEstimado": 2024,
-    "estimado": 1102,
-    "margem": 93,
-    "modelo": "Referência (repete o ano anterior)"
+    "estimado": 1071,
+    "margem": 81,
+    "modelo": "Tendência linear (5 anos)"
   },
   {
     "regiao": "Sul",
     "anoObservado": 2023,
     "observado": 559,
     "anoEstimado": 2024,
-    "estimado": 559,
-    "margem": 50,
-    "modelo": "Referência (repete o ano anterior)"
+    "estimado": 571,
+    "margem": 37,
+    "modelo": "Tendência linear (5 anos)"
   }
 ]

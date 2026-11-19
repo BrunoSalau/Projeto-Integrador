@@ -84,7 +84,7 @@ export default function AreaApoioScreen({ navigation }) {
           ))}
 
         {indicadores !== null && (
-          <Text style={estilos.indicadoresFonte}>Modelo: {indicadores[0]?.modelo}. A margem é o erro médio absoluto da validação cruzada.</Text>
+          <Text style={estilos.indicadoresFonte}>Modelo: {indicadores[0]?.modelo}. A margem é o erro médio absoluto da validação cruzada. A vantagem deste modelo sobre simplesmente repetir o último ano é pequena e não conclusiva; use apenas como contexto aproximado.</Text>
         )}
       </View>
     </ScrollView>
